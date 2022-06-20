@@ -2,12 +2,13 @@ package networkfirewall
 
 import (
 	"context"
-	"regexp"
+	"fmt"
+	"log"
 
-	"github.com/aws/aws-sdk-go/service/networkfirewall"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-provider-aws/internal/conns"
 	tftags "github.com/hashicorp/terraform-provider-aws/internal/tags"
 	"github.com/hashicorp/terraform-provider-aws/internal/verify"
 )
@@ -140,7 +141,7 @@ func DataSourceRuleGroup() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"generated_rules_type": {
-													Type:         schema.TypeString,
+													Type:     schema.TypeString,
 													Computed: true,
 													// Required:     true,
 													// ValidateFunc: validation.StringInSlice(networkfirewall.GeneratedRulesType_Values(), false),
@@ -150,7 +151,7 @@ func DataSourceRuleGroup() *schema.Resource {
 													Computed: true,
 													// Required: true,
 													Elem: &schema.Schema{
-														Type:         schema.TypeString,
+														Type:     schema.TypeString,
 														Computed: true,
 														// ValidateFunc: validation.StringInSlice(networkfirewall.TargetType_Values(), false),
 													},
@@ -159,7 +160,7 @@ func DataSourceRuleGroup() *schema.Resource {
 													Type:     schema.TypeSet,
 													Computed: true,
 													// Required: true,
-													Elem:     &schema.Schema{Type: schema.TypeString},
+													Elem: &schema.Schema{Type: schema.TypeString},
 												},
 											},
 										},
@@ -176,7 +177,7 @@ func DataSourceRuleGroup() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"action": {
-													Type:         schema.TypeString,
+													Type:     schema.TypeString,
 													Computed: true,
 													// Required:     true,
 													// ValidateFunc: validation.StringInSlice(networkfirewall.StatefulAction_Values(), false),
@@ -199,13 +200,13 @@ func DataSourceRuleGroup() *schema.Resource {
 																// Required: true,
 															},
 															"direction": {
-																Type:         schema.TypeString,
+																Type:     schema.TypeString,
 																Computed: true,
 																// Required:     true,
 																// ValidateFunc: validation.StringInSlice(networkfirewall.StatefulRuleDirection_Values(), false),
 															},
 															"protocol": {
-																Type:         schema.TypeString,
+																Type:     schema.TypeString,
 																Computed: true,
 																// Required:     true,
 																// ValidateFunc: validation.StringInSlice(networkfirewall.StatefulRuleProtocol_Values(), false),
@@ -238,7 +239,7 @@ func DataSourceRuleGroup() *schema.Resource {
 																Type:     schema.TypeSet,
 																Computed: true,
 																// Optional: true,
-																Elem:     &schema.Schema{Type: schema.TypeString},
+																Elem: &schema.Schema{Type: schema.TypeString},
 															},
 														},
 													},
@@ -276,7 +277,7 @@ func DataSourceRuleGroup() *schema.Resource {
 																			Type:     schema.TypeSet,
 																			Computed: true,
 																			// Required: true,
-																			Elem:     &schema.Schema{Type: schema.TypeString},
+																			Elem: &schema.Schema{Type: schema.TypeString},
 																		},
 																		"match_attributes": {
 																			Type:     schema.TypeList,
@@ -292,7 +293,7 @@ func DataSourceRuleGroup() *schema.Resource {
 																						Elem: &schema.Resource{
 																							Schema: map[string]*schema.Schema{
 																								"address_definition": {
-																									Type:         schema.TypeString,
+																									Type:     schema.TypeString,
 																									Computed: true,
 																									// Required:     true,
 																									// ValidateFunc: verify.ValidIPv4CIDRNetworkAddress,
@@ -323,7 +324,7 @@ func DataSourceRuleGroup() *schema.Resource {
 																						Type:     schema.TypeSet,
 																						Computed: true,
 																						// Optional: true,
-																						Elem:     &schema.Schema{Type: schema.TypeInt},
+																						Elem: &schema.Schema{Type: schema.TypeInt},
 																					},
 																					"source": {
 																						Type:     schema.TypeSet,
@@ -332,7 +333,7 @@ func DataSourceRuleGroup() *schema.Resource {
 																						Elem: &schema.Resource{
 																							Schema: map[string]*schema.Schema{
 																								"address_definition": {
-																									Type:         schema.TypeString,
+																									Type:     schema.TypeString,
 																									Computed: true,
 																									// Required:     true,
 																									// ValidateFunc: verify.ValidIPv4CIDRNetworkAddress,
@@ -370,7 +371,7 @@ func DataSourceRuleGroup() *schema.Resource {
 																									Computed: true,
 																									// Required: true,
 																									Elem: &schema.Schema{
-																										Type:         schema.TypeString,
+																										Type:     schema.TypeString,
 																										Computed: true,
 																										// ValidateFunc: validation.StringInSlice(networkfirewall.TCPFlag_Values(), false),
 																									},
@@ -380,7 +381,7 @@ func DataSourceRuleGroup() *schema.Resource {
 																									Computed: true,
 																									// Optional: true,
 																									Elem: &schema.Schema{
-																										Type:         schema.TypeString,
+																										Type:     schema.TypeString,
 																										Computed: true,
 																										// ValidateFunc: validation.StringInSlice(networkfirewall.TCPFlag_Values(), false),
 																									},
@@ -411,7 +412,7 @@ func DataSourceRuleGroup() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"rule_order": {
-										Type:         schema.TypeString,
+										Type:     schema.TypeString,
 										Computed: true,
 										// Required:     true,
 										// ValidateFunc: validation.StringInSlice(networkfirewall.RuleOrder_Values(), false),
@@ -430,7 +431,7 @@ func DataSourceRuleGroup() *schema.Resource {
 			"tags":     tftags.TagsSchema(),
 			"tags_all": tftags.TagsSchemaComputed(),
 			"type": {
-				Type:         schema.TypeString,
+				Type:     schema.TypeString,
 				Computed: true,
 				// Required:     true,
 				// ValidateFunc: validation.StringInSlice(networkfirewall.RuleGroupType_Values(), false),
@@ -454,8 +455,8 @@ func DataSourceRuleGroup() *schema.Resource {
 
 func resourceRuleGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conn := meta.(*conns.AWSClient).NetworkFirewallConn
-	// defaultTagsConfig := meta.(*conns.AWSClient).DefaultTagsConfig
-	// ignoreTagsConfig := meta.(*conns.AWSClient).IgnoreTagsConfig
+	defaultTagsConfig := meta.(*conns.AWSClient).DefaultTagsConfig
+	ignoreTagsConfig := meta.(*conns.AWSClient).IgnoreTagsConfig
 
 	log.Printf("[DEBUG] Reading NetworkFirewall Rule Group %s", d.Id())
 
@@ -496,13 +497,13 @@ func resourceRuleGroupRead(ctx context.Context, d *schema.ResourceData, meta int
 	tags := KeyValueTags(resp.Tags).IgnoreAWS().IgnoreConfig(ignoreTagsConfig)
 
 	//lintignore:AWSR002
-	// if err := d.Set("tags", tags.RemoveDefaultConfig(defaultTagsConfig).Map()); err != nil {
-	// 	return diag.FromErr(fmt.Errorf("error setting tags: %w", err))
-	// }
+	if err := d.Set("tags", tags.RemoveDefaultConfig(defaultTagsConfig).Map()); err != nil {
+		return diag.FromErr(fmt.Errorf("error setting tags: %w", err))
+	}
 
-	// if err := d.Set("tags_all", tags.Map()); err != nil {
-	// 	return diag.FromErr(fmt.Errorf("error setting tags_all: %w", err))
-	// }
+	if err := d.Set("tags_all", tags.Map()); err != nil {
+		return diag.FromErr(fmt.Errorf("error setting tags_all: %w", err))
+	}
 
 	return nil
 }
