@@ -57,14 +57,13 @@ func TestAccNetworkFirewallRuleDataSource_Basic_rulesSourceList(t *testing.T) {
 
 func testFirewallRuleGroupDataSource(rName string) string {
 	return fmt.Sprintf(`
-
 data "aws_networkfirewall_rule_group" "test" {
 	arn = aws_networkfirewall_rule_group.test.arn
 }
 
 resource "aws_networkfirewall_rule_group" "test" {
 	capacity = 100
-	name     = "test"
+	name     = %[1]q
 	type     = "STATEFUL"
 	rules_source {
 		stateful_rule {
@@ -81,14 +80,13 @@ resource "aws_networkfirewall_rule_group" "test" {
 			keyword = "sid:1"
 		  }
 		}
-	  }
 	}
+}
   
 	tags = {
 	  Tag1 = "Value1"
 	  Tag2 = "Value2"
 	}
-  }
-
-	`, rName)
+}  
+`, rName)
 }
