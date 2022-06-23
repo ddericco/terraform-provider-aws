@@ -65,27 +65,23 @@ resource "aws_networkfirewall_rule_group" "test" {
 	capacity = 100
 	name     = %[1]q
 	type     = "STATEFUL"
-	rules_source {
-		stateful_rule {
-		  action = "DROP"
-		  header {
-			destination      = "124.1.1.24/32"
-			destination_port = 53
-			direction        = "ANY"
-			protocol         = "TCP"
-			source           = "1.2.3.4/32"
-			source_port      = 53
-		  }
-		  rule_option {
-			keyword = "sid:1"
-		  }
-		}
-	}
-}
-  
-	tags = {
-	  Tag1 = "Value1"
-	  Tag2 = "Value2"
+	rule_group {
+		rules_source {
+			stateful_rule {
+			  action = "DROP"
+			  header {
+				destination      = "124.1.1.24/32"
+				destination_port = 53
+				direction        = "ANY"
+				protocol         = "TCP"
+				source           = "1.2.3.4/32"
+				source_port      = 53
+			  }
+			  rule_option {
+				keyword = "sid:1"
+			  }
+			}
+		}  
 	}
 }  
 `, rName)
