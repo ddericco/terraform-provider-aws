@@ -229,7 +229,7 @@ func DataSourceRuleGroup() *schema.Resource {
 																				Schema: map[string]*schema.Schema{
 																					"destination": {
 																						Type:     schema.TypeSet,
-																						Optional: true,
+																						Computed: true,
 																						Elem: &schema.Resource{
 																							Schema: map[string]*schema.Schema{
 																								"address_definition": {
@@ -241,9 +241,7 @@ func DataSourceRuleGroup() *schema.Resource {
 																					},
 																					"destination_port": {
 																						Type:     schema.TypeSet,
-																						Optional: true,
-																						//Computed: true,
-																						// Optional: true,
+																						Computed: true,
 																						Elem: &schema.Resource{
 																							Schema: map[string]*schema.Schema{
 																								"from_port": {
@@ -259,7 +257,6 @@ func DataSourceRuleGroup() *schema.Resource {
 																					},
 																					"protocols": {
 																						Type:     schema.TypeSet,
-																						Optional: true,
 																						Computed: true,
 																						// Optional: true,
 																						Elem: &schema.Schema{Type: schema.TypeInt},
@@ -272,7 +269,7 @@ func DataSourceRuleGroup() *schema.Resource {
 																							Schema: map[string]*schema.Schema{
 																								"address_definition": {
 																									Type:     schema.TypeString,
-																									Optional: true,
+																									Computed: true,
 																								},
 																							},
 																						},
